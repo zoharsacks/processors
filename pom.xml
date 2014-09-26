@@ -214,5 +214,19 @@
           <artifactId>libsvm</artifactId>
           <version>3.17</version>
         </dependency>
+
+        <!-- dependencies required by agiga -->
+        <!-- JHU Gigaword API -->
+        <dependency>
+            <groupId>edu.jhu.agiga</groupId>
+            <artifactId>agiga</artifactId>
+            <version>1.2</version>
+        </dependency>
+        <dependency>
+            <groupId>com.ximpleware</groupId>
+            <artifactId>vtd-xml</artifactId>
+            <version>2.10</version>
+        </dependency>
+
     </dependencies>
 </project>

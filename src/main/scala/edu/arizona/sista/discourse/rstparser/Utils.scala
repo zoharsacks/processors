@@ -6,6 +6,7 @@ import edu.arizona.sista.struct.Counter
 import edu.arizona.sista.struct.{DirectedGraph, Lexicon, Tree}
 import scala.collection.mutable.{ArrayBuffer, ListBuffer}
 import scala.collection.mutable
+import scala.util.control.NonFatal
 
 /**
  * Various utils useful for feature generation, etc.
@@ -208,12 +209,16 @@ object Utils {
                                          last:Int): (Int, Int, String) = {
     // the head of this span is the token that is a root, or
     // the head of this span is the left-most token whose syntactic head falls outside the given span
-    for(i <- first to last) {
+    for(i <- first until last) {
       if(deps.roots.contains(i)) { // found a root
         return (i, -1, "")
       }
-
-      val heads = deps.incomingEdges(i)
+      var heads: Array[(Int, String)] = null
+      try {heads = deps.incomingEdges(i)}
+      catch {
+        case NonFatal(e) => println(s"WARNING: $e\nProblem retrieving incoming edges for i = $i, deps = $deps")
+        System.exit(1)
+      }
       var outside = false
       var p = -1
       var l = ""
