@@ -210,11 +210,13 @@ object Utils {
     // the head of this span is the token that is a root, or
     // the head of this span is the left-most token whose syntactic head falls outside the given span
     for(i <- first until last) {
+      println(s"first: $first last: $last")
       if(deps.roots.contains(i)) { // found a root
         return (i, -1, "")
       }
       var heads: Array[(Int, String)] = null
-      try {heads = deps.incomingEdges(i)}
+      try {heads = deps.incomingEdges(i)
+            println("incoming edges found...")}
       catch {
         case NonFatal(e) => println(s"WARNING: $e\nProblem retrieving incoming edges for i = $i, deps = $deps")
         System.exit(1)
@@ -237,6 +239,48 @@ object Utils {
     (-1, -1, "")
   }
 
+  def findSyntacticHeadFromDependencies_debug( deps:DirectedGraph[String],
+                                         first:Int,
+                                         last:Int,
+                                         words:Array[String],
+                                         entDir: String): (Int, Int, String) = {
+    // the head of this span is the token that is a root, or
+    // the head of this span is the left-most token whose syntactic head falls outside the given span
+    for(i <- first to last) {
+      //println(s"first: $first last: $last")
+      if(deps.roots.contains(i)) { // found a root
+        return (i, -1, "")
+      }
+      var heads: Array[(Int, String)] = null
+      if (deps.size == 0) println ("ATTENTION: deps is empty!")
+      try {heads = deps.incomingEdges(i)
+      //println("incoming edges found...")
+      }
+      catch {
+        case NonFatal(e) =>
+          println(s"first: $first last: $last entered from: $entDir")
+          println("Sentence: ")
+          words.foreach(word => println(word))
+          println(s"WARNING: $e\nProblem retrieving incoming edges for i = $i, deps = $deps, ")
+          //System.exit(1)
+      }
+      var outside = false
+      var p = -1
+      var l = ""
+      for(h <- heads if ! outside) {
+        if(h._1 < first || h._1 > last) {
+          outside = true
+          p = h._1
+          l = h._2
+        }
+      }
+      if(outside) { // found the head
+        return (i, p, l)
+      }
+    }
+
+    (-1, -1, "")
+  }
 
   def findSyntacticHead( root:Tree[String],
                          parent:Tree[String],

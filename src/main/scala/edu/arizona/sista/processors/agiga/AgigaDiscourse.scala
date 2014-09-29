@@ -155,11 +155,17 @@ object AgigaDiscourse {
           posTags += w.getPosTag
           nerTags += w.getNerTag
           startOffsets += w.getCharOffBegin
+
           endOffsets += w.getCharOffEnd
         }
         val deps = new DirectedGraph[String](edgeBuffer.toList, roots.toSet)
         // perhaps one of the above are empty...
 
+        //testing the indexing of character offsets -- they are zero indexed, the offsets are def character offsets,
+        // not word offsets...
+//        for (i <- 0 until startOffsets.size){
+//          println (s"i:$i\toffset: ${startOffsets(i)}")
+//        }
         val sent = new Sentence(
           /** Actual tokens in this sentence */
           words.toArray,
@@ -193,6 +199,7 @@ object AgigaDiscourse {
 
           /** *Dependencies: Option[DirectedGraph[String]]) */
           Some(deps))
+
         docSentences += sent
         //println(s"Words: ${words.mkString(" ")}")
       }
