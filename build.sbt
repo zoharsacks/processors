@@ -33,7 +33,7 @@ addArtifact(Artifact(Common.name, Common.classifier), modelsTask in models)
 
 unmanagedJars in Runtime += (modelsTask in models).value
 
-unmanagedClasspath in Runtime += baseDirectory.value 
+unmanagedClasspath in Runtime += baseDirectory.value
 
 //
 // publishing settings
@@ -94,6 +94,7 @@ libraryDependencies ++= Seq(
   "junit" % "junit" % "4.10" % "test",
   "com.novocode" % "junit-interface" % "0.11" % "test",
   "xom" % "xom" % "1.2.5",
+  "org.json4s" % "json4s-native_2.10" % "3.2.11",
   "joda-time" % "joda-time" % "2.1",
   "de.jollyday" % "jollyday" % "0.4.7",
   "com.googlecode.efficient-java-matrix-library" % "ejml" % "0.19",
