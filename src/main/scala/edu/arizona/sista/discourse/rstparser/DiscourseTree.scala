@@ -10,7 +10,7 @@ import edu.arizona.sista.processors.Document
   * Stores the RST discourse tree for one document
   * User: mihais
   * Date: 4/4/14
-  * Last Modified: Add methods to create JSON for visualization. -TRH
+  * Last Modified: Fix bad call. Turn off pretty-print by default.
  */
 @SerialVersionUID(1L)
 class DiscourseTree (
@@ -145,11 +145,11 @@ class DiscourseTree (
   }
 
 
-  def visualizerJSON():String = {
-    visualizeJSON(printChildren = true, printKind = false, pprint = true)
+  def visualizerJSON (): String = {
+    visualizerJSON(printChildren = true, printKind = false, pprint = false)
   }
 
-  def visualizerJSON(printChildren:Boolean, printKind:Boolean, pprint:Boolean):String = {
+  def visualizerJSON (printChildren:Boolean, printKind:Boolean, pprint:Boolean): String = {
     val json = buildJSON(JObject(), printChildren, printKind)
     if (pprint)
       pretty(render(json))
@@ -157,7 +157,7 @@ class DiscourseTree (
       compact(render(json))
   }
 
-  def buildJSON (argJson:JValue, printChildren:Boolean, printKind:Boolean):JValue = {
+  def buildJSON (argJson:JValue, printChildren:Boolean, printKind:Boolean): JValue = {
     var json = argJson
 
     if (printKind) {
