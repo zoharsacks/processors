@@ -7,26 +7,22 @@ import edu.arizona.sista.processors.fastnlp.FastNLPProcessor
 /**
  * External API for running different discourse parsers for visualization.
  * Written By: Tom Hicks. 1/15/2015.
- * Last Modified: Initial creation.
+ * Last Modified: Redo this object as a class.
  */
-object ParseRunner {
-
-  def parseText(text: String): ParseResults = parseText(text, useProcessor = "core")
-
-  def parseText(text: String, useProcessor: String): ParseResults = {
-    // default processor is the slow but better discourse parser
-    var processor: Processor = new CoreNLPProcessor(withDiscourse = true)
-
+class ParseRunner (useProcessor:String = "core") {
+  val processor:Processor =
     if (useProcessor == "fast")             // fast but slightly worse discourse parser
-      processor = new FastNLPProcessor(withDiscourse = true)
+      new FastNLPProcessor(withDiscourse = true)
+    else                                    // default: slow but better discourse parser
+      new CoreNLPProcessor(withDiscourse = true)
 
+
+  def parseText(text: String): ParseResults = {
     // annotate the document using the selected processor
     val doc = processor.annotate(text)
-
     // return information from discourse trees as an array of JSON strings:
     new ParseResults(text, discTrees(doc))
   }
-
 
   def discTrees(doc: Document): Array[String] = {
     val allTrees = doc.discourseTree map { dTree =>
@@ -35,6 +31,9 @@ object ParseRunner {
     allTrees.toArray
   }
 
+  override def toString:String = {
+    return "<%s: %s>".format(super.toString(), useProcessor)
+  }
 }
 
 
