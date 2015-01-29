@@ -7,7 +7,7 @@ import edu.arizona.sista.processors.fastnlp.FastNLPProcessor
 /**
  * External API for running different discourse parsers for visualization.
  * Written By: Tom Hicks. 1/15/2015.
- * Last Modified: Use local annotate method with no co-reference resolution.
+ * Last Modified: Revert to using co-reference, add discourse tree print logging.
  */
 class DiscourseParserRunner (useProcessor:String = "core") {
   val processor:Processor =
@@ -19,7 +19,14 @@ class DiscourseParserRunner (useProcessor:String = "core") {
 
   def parseText (text: String): DiscourseParserResults = {
     // create and annotate a document using the selected processor
-    val doc = annotateNoCoRef(processor.mkDocument(text))
+    val doc = processor.annotate(text);
+    // val doc = annotateNoCoRef(processor.mkDocument(text))  // call to bypass co-ref processing
+
+    doc.discourseTree.foreach(dt => {
+      println("Document-wide discourse tree: returned from processor.annotate (with coRef)")
+      println(dt.toString())
+    })
+
     // return information from discourse trees as an array of JSON strings:
     new DiscourseParserResults(text, discTrees(doc), synTrees(doc))
   }
@@ -39,6 +46,7 @@ class DiscourseParserRunner (useProcessor:String = "core") {
   }
 
 
+  // this alternate annotate method can be called from above to bypass co-reference processing
   def annotateNoCoRef (doc:Document): Document = {
     processor.tagPartsOfSpeech(doc)
     processor.lemmatize(doc)
