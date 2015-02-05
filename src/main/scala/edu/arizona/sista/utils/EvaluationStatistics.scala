@@ -4,6 +4,7 @@ import scala.language.postfixOps
 
 /**
  * Created by dfried on 5/22/14
+ * Last Modified: Remove laziness.
  */
 object EvaluationStatistics {
 
@@ -140,19 +141,19 @@ class EvaluationStatistics[A](tables: Map[A, EvaluationStatistics.Table]) {
 
   private def weightedAverage: ((Table) => Double) => Double = EvaluationStatistics.weightedAverage(tables)
 
-  lazy val microPrecision = microAverage(_.precision)
+  val microPrecision = microAverage(_.precision)
 
-  lazy val microRecall = microAverage(_.recall)
+  val microRecall = microAverage(_.recall)
 
-  lazy val microF1 = microAverage(_.f1)
+  val microF1 = microAverage(_.f1)
 
-  lazy val macroPrecision = macroAverage(_.precision)
+  val macroPrecision = macroAverage(_.precision)
 
-  lazy val macroRecall = macroAverage(_.recall)
+  val macroRecall = macroAverage(_.recall)
 
-  lazy val macroF1 = macroAverage(_.f1)
+  val macroF1 = macroAverage(_.f1)
 
-  lazy val accuracy = tables.values.map(_.tp).sum.toDouble / tables.values.head.total
+  val accuracy = tables.values.map(_.tp).sum.toDouble / tables.values.head.total
 
   /** format of this is based on David Hall's Nak */
   override def toString = {
