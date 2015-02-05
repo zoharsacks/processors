@@ -20,6 +20,7 @@ import scala.collection.mutable.ArrayBuffer
  * A processor for biomedical texts, based on CoreNLP, but with different tokenization and NER
  * User: mihais
  * Date: 10/27/14
+ * Last Modified: Remove laziness.
  */
 class BioNLPProcessor (internStrings:Boolean = true,
                        withNER:Boolean = true,
@@ -28,8 +29,8 @@ class BioNLPProcessor (internStrings:Boolean = true,
                        removeFigTabReferences:Boolean = true)
   extends CoreNLPProcessor(internStrings, basicDependencies = false, withDiscourse, maxSentenceLength) {
 
-  lazy val banner = new BannerWrapper
-  lazy val postProcessor = new BioNLPTokenizerPostProcessor
+  val banner = new BannerWrapper
+  val postProcessor = new BioNLPTokenizerPostProcessor
 
   override def mkTokenizerWithoutSentenceSplitting: StanfordCoreNLP = {
     val props = new Properties()

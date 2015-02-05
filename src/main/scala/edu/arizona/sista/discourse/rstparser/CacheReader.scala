@@ -11,12 +11,13 @@ import edu.arizona.sista.utils.ClassLoaderObjectInputStream
  * Caches the output of Reader.readDir, so we don't parse everything everytime
  * User: mihais
  * Date: 5/25/14
+ * Last Modified: Remove laziness.
  */
 object CacheReader {
   val logger = LoggerFactory.getLogger(classOf[CacheReader])
 
-  lazy val CORENLP_PROCESSOR = new CoreNLPProcessor(basicDependencies = true, withDiscourse = false)
-  lazy val FASTNLP_PROCESSOR = new FastNLPProcessor(withDiscourse = false)
+  val CORENLP_PROCESSOR = new CoreNLPProcessor(basicDependencies = true, withDiscourse = false)
+  val FASTNLP_PROCESSOR = new FastNLPProcessor(withDiscourse = false)
 
   def getProcessor(dependencySyntax:Boolean):Processor =
     dependencySyntax match {

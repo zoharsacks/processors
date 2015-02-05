@@ -9,11 +9,12 @@ import edu.arizona.sista.processors.fastnlp.FastNLPProcessor
  * Reads all .dis files in a directory and computes some useful stats
  * User: mihais
  * Date: 4/6/14
+ * Last Modified: Remove laziness.
  */
 object TreeStats {
   def main(args:Array[String]) {
     val reader = new Reader
-    lazy val proc = new FastNLPProcessor()
+    val proc = new FastNLPProcessor()
     val top = new File(args(0))
     val trees = new ListBuffer[DiscourseTree]
     if(top.isDirectory) {

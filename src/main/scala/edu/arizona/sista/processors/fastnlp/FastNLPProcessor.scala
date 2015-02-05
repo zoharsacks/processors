@@ -18,6 +18,7 @@ import org.maltparserx
  * Also, malt produces Stanford "basic" dependencies, rather than "collapsed" ones
  * User: mihais
  * Date: 1/4/14
+ * Last Modified: Remove laziness.
  */
 class FastNLPProcessor(internStrings:Boolean = true,
                        withDiscourse:Boolean = false)
@@ -31,7 +32,7 @@ class FastNLPProcessor(internStrings:Boolean = true,
   private val maltService = new ThreadLocal[MaltParserService]
 
   /** RST discourse parser using only dependency based syntax */
-  lazy val rstDependencyParser = CoreNLPProcessor.fetchParser(RSTParser.DEFAULT_DEPENDENCYSYNTAX_MODEL_PATH)
+  val rstDependencyParser = CoreNLPProcessor.fetchParser(RSTParser.DEFAULT_DEPENDENCYSYNTAX_MODEL_PATH)
 
 
   override def parse(doc:Document) {

@@ -23,26 +23,27 @@ import edu.stanford.nlp.semgraph.{SemanticGraph, SemanticGraphCoreAnnotations}
  * API for Stanford's CoreNLP tools
  * User: mihais
  * Date: 3/1/13
+ * Last Modified: Remove laziness.
  */
 class CoreNLPProcessor(val internStrings:Boolean = true,
                        val basicDependencies:Boolean = false,
                        val withDiscourse:Boolean = false,
                        val maxSentenceLength:Int = 100) extends Processor {
-  lazy val tokenizerWithoutSentenceSplitting = mkTokenizerWithoutSentenceSplitting
-  lazy val tokenizerWithSentenceSplitting = mkTokenizerWithSentenceSplitting
-  lazy val posTagger = mkPosTagger
-  lazy val lemmatizer = mkLemmatizer
-  lazy val ner = mkNer
-  lazy val coref = mkCoref
-  lazy val rstConstituentParser = CoreNLPProcessor.fetchParser(RSTParser.DEFAULT_CONSTITUENTSYNTAX_MODEL_PATH)
+  val tokenizerWithoutSentenceSplitting = mkTokenizerWithoutSentenceSplitting
+  val tokenizerWithSentenceSplitting = mkTokenizerWithSentenceSplitting
+  val posTagger = mkPosTagger
+  val lemmatizer = mkLemmatizer
+  val ner = mkNer
+  val coref = mkCoref
+  val rstConstituentParser = CoreNLPProcessor.fetchParser(RSTParser.DEFAULT_CONSTITUENTSYNTAX_MODEL_PATH)
 
   //
   // we maintain our own copy of a LexicalizedParser to control which sentences are parsed
   // the CoreNLP option parser.maxlen does not work well
   //
-  lazy val stanfordParser = mkLexicalizedParser
-  lazy val gsf = mkGSF
-  lazy val headFinder = new SemanticHeadFinder()
+  val stanfordParser = mkLexicalizedParser
+  val gsf = mkGSF
+  val headFinder = new SemanticHeadFinder()
 
   def mkLexicalizedParser: LexicalizedParser = {
     val parser = LexicalizedParser.loadModel()

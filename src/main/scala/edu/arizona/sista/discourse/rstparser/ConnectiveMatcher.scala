@@ -11,6 +11,7 @@ import edu.arizona.sista.processors.{Sentence, Document}
  * Matches a set of known connectives in a given document
  * User: mihais
  * Date: 5/21/14
+ * Last Modified: Remove laziness.
  */
 class ConnectiveMatcher
 
@@ -19,7 +20,7 @@ object ConnectiveMatcher {
 
   val DEFAULT_CONNECTIVE_FILE = "edu/arizona/sista/discourse/rstparser/discourse_connectives.txt"
 
-  lazy val CONNECTIVES = loadConnectives(DEFAULT_CONNECTIVE_FILE)
+  val CONNECTIVES = loadConnectives(DEFAULT_CONNECTIVE_FILE)
 
   val NO_CONNECTIVE = "O"
   val BEGIN_CONNECTIVE = "B"
