@@ -15,7 +15,7 @@ import Utils._
  * Date: 5/21/14
  */
 class StructureClassifier {
-  val featureExtractor = new RelationFeatureExtractor(filter = null)
+  val featureExtractor = new RelationFeatureExtractor
   var classifier:Classifier[String, String]  = null
   var scaleRanges:ScaleRange[String] = null
   var corpusStats:CorpusStats = null

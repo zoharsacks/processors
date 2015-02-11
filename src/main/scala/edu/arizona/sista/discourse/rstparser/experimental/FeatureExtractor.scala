@@ -14,7 +14,7 @@ class FeatureExtractor {
                   doc: Document,
                   edus: Array[Array[(Int, Int)]],
                   corpusStats: CorpusStats,
-                  label: String): SparseVector = this.synchronized {
+                  label: String): SparseVector = {
     val feats = featureExtractor.mkFeatures(left, right, doc, edus, corpusStats, label)
     getFeatures(feats)
   }
