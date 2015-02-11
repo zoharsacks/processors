@@ -2,8 +2,8 @@ package edu.arizona.sista.discourse.rstparser
 
 
 object Trainer extends App {
-  val trainDirName = "/Users/marcov/data/RST_cached_preprocessing/rst_train"
-  val testDirName = "/Users/marcov/data/RST_cached_preprocessing/rst_test"
+  val trainDirName = "/work/marcov/data/RST_cached_preprocessing/rst_train"
+  val testDirName = "/work/marcov/data/RST_cached_preprocessing/rst_test"
   val dependencySyntax = true
   val processor = CacheReader.getProcessor(dependencySyntax)
 
