@@ -6,27 +6,28 @@ import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
 import edu.arizona.sista.learning.{RVFDataset, Datum, RVFDatum}
 import edu.arizona.sista.struct.{Counter, Lexicon}
+import breeze.linalg.{SparseVector => BreezeSparseVector}
 
 class DistributedPerceptron(val epochs: Int, val numShards: Int) {
-  var finalWeights: SparseVector = _
+  var finalWeights: BreezeSparseVector[Double] = _
   val featureLexicon = new Lexicon[String]
 
   def train(dataset: RVFDataset[Int, String]): Unit = {
-    var avgWeights: SparseVector = Map.empty
+    var avgWeights: BreezeSparseVector[Double] = BreezeSparseVector.zeros[Double](Integer.MAX_VALUE)
     val indices = Seq.range(0, dataset.size)
 
-    def oneEpoch(shard: Seq[Int]): Future[SparseVector] = Future {
-      var weights = Map(avgWeights.toSeq:_*)
-      var avgW = Map(avgWeights.toSeq:_*)
+    def oneEpoch(shard: Seq[Int]): Future[BreezeSparseVector[Double]] = Future {
+      var weights = avgWeights.copy
+      var avgW = avgWeights.copy
       for (i <- shard) {
         val datum = dataset.mkDatum(i)
         val label = datum.label
         val features = getFeatures(datum.featuresCounter)
         val predLabel = predictLabel(weights, features)
         if (label != predLabel) {
-          weights = if (label > 0) vectorAdd(weights, features) else vectorSubtract(weights, features)
+          weights += (if (label > 0) features else -features)
         }
-        avgW = vectorAdd(avgW, weights)
+        avgW += weights
       }
       avgW
     }
@@ -36,17 +37,17 @@ class DistributedPerceptron(val epochs: Int, val numShards: Int) {
       val futureWeights = Future.sequence(shards map oneEpoch)
       val shardWeights = Await.result(futureWeights, Duration.Inf)
       avgWeights = (avgWeights /: shardWeights) {
-        case (lhs, rhs) => vectorAdd(lhs, rhs)
+        case (lhs, rhs) => lhs + rhs
       }
     }
 
     finalWeights = avgWeights
   }
 
-  def predictLabel(weights: SparseVector, features: SparseVector): Int =
-    if (dotProduct(weights, features) > 0) 1 else -1
+  def predictLabel(weights: BreezeSparseVector[Double], features: BreezeSparseVector[Double]): Int =
+    if ((weights dot features) > 0) 1 else -1
 
-  def predictLabel(features: SparseVector): Int =
+  def predictLabel(features: BreezeSparseVector[Double]): Int =
     predictLabel(finalWeights, features)
 
   def predictLabel(features: Counter[String]): Int =
@@ -68,8 +69,11 @@ class DistributedPerceptron(val epochs: Int, val numShards: Int) {
     }
   }
 
-  def getFeatures(counter: Counter[String]): SparseVector =
-    for ((f, v) <- counter.toSeq.toMap) yield (featureLexicon.add(f), v)
+  def getFeatures(counter: Counter[String]): BreezeSparseVector[Double] = {
+    val feats = for ((f, v) <- counter.toSeq) yield (featureLexicon.add(f), v)
+    val (index, data) = feats.sortBy(_._1).unzip
+    new BreezeSparseVector(index.toArray, data.toArray, Integer.MAX_VALUE)
+  }
 }
 
 object TestPerceptron extends App {
