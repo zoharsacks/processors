@@ -2,6 +2,7 @@ package edu.arizona.sista.discourse.rstparser
 
 import edu.arizona.sista.struct.{Counter, Lexicon}
 import edu.arizona.sista.processors.Document
+import breeze.linalg.SparseVector
 
 class FeatureExtractor {
   val featureExtractor = new RelationFeatureExtractor
@@ -14,16 +15,14 @@ class FeatureExtractor {
                   doc: Document,
                   edus: Array[Array[(Int, Int)]],
                   corpusStats: CorpusStats,
-                  label: String): SparseVector = {
+                  label: String): SparseVector[Double] = {
     val feats = featureExtractor.mkFeatures(left, right, doc, edus, corpusStats, label)
     getFeatures(feats)
   }
 
-  def getFeatures(counter: Counter[String]): SparseVector =
-    for ((f, v) <- counter.toSeq.toMap) yield (getOrCreateFeatureIndex(f), v)
-
-  def getOrCreateFeatureIndex(s: String): Int = lexicon.get(s) match {
-    case Some(i) => i
-    case None => lexicon.add(s)
+  def getFeatures(counter: Counter[String]): SparseVector[Double] = {
+    val feats = for ((f, v) <- counter.toSeq) yield (lexicon.add(f), v)
+    val (index, data) = feats.sortBy(_._1).unzip
+    new SparseVector(index.toArray, data.toArray, Integer.MAX_VALUE)
   }
 }

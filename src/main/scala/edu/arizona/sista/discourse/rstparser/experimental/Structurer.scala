@@ -7,6 +7,7 @@ import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
 import edu.arizona.sista.processors.Document
 import edu.arizona.sista.discourse.rstparser.Utils.mkGoldEDUs
+import breeze.linalg.SparseVector
 
 class Structurer(val epochs: Int, val learningRate: Double) {
   require(epochs > 0, "'epochs' should be greater than 0")
@@ -14,13 +15,13 @@ class Structurer(val epochs: Int, val learningRate: Double) {
 
   val policy = new InterpolatedPolicy
   val featureExtractor = new FeatureExtractor
-  var avgWeights: SparseVector = _
+  var avgWeights: SparseVector[Double] = _
 
   def train(treedocs: IndexedSeq[(DiscourseTree, Document)], corpusStats: CorpusStats, numShards: Int): LearnedPolicy = {
-    avgWeights = Map[Int, Double]()
+    avgWeights = SparseVector.zeros[Double](Integer.MAX_VALUE)
 
-    def oneEpoch(indices: Seq[Int]): Future[SparseVector] = Future {
-      var weights = Map(avgWeights.toSeq:_*)  // copy the avgWeights
+    def oneEpoch(indices: Seq[Int]): Future[SparseVector[Double]] = Future {
+      var weights = avgWeights.copy
       for (i <- indices) {
         val (tree, doc) = treedocs(i)
         val edus = mkGoldEDUs(tree, doc)
@@ -40,8 +41,8 @@ class Structurer(val epochs: Int, val learningRate: Double) {
           if (predNextCost > 0) {
             val bestFeatures = getFeatures(state, bestMerge, doc, edus, corpusStats)
             val predFeatures = getFeatures(state, predMerge, doc, edus, corpusStats)
-            weights = vectorAdd(weights, bestFeatures)
-            weights = vectorSubtract(weights, predFeatures)
+            weights += bestFeatures
+            weights -= predFeatures
           }
         }
       }
@@ -59,9 +60,9 @@ class Structurer(val epochs: Int, val learningRate: Double) {
       val allWeights = Await.result(futureWeights, Duration.Inf)
 
       avgWeights = (avgWeights /: allWeights) {
-        case (lhs, rhs) => vectorAdd(lhs, rhs)
+        case (lhs, rhs) => lhs + rhs
       }
-      policy.learned = new LearnedPolicy(sparseToDense(avgWeights), corpusStats)
+      policy.learned = new LearnedPolicy(avgWeights, corpusStats)
     }
 
     policy.learned
@@ -87,20 +88,20 @@ class Structurer(val epochs: Int, val learningRate: Double) {
                   merge: Int,
                   doc: Document,
                   edus: Array[Array[(Int, Int)]],
-                  corpusStats: CorpusStats): SparseVector = {
+                  corpusStats: CorpusStats): SparseVector[Double] = {
     val left = state(merge)
     val right = state(merge + 1)
     featureExtractor.getFeatures(left, right, doc, edus, corpusStats, "DUMMY_LABEL")
   }
 
-  def predictMerge(weights: SparseVector,
+  def predictMerge(weights: SparseVector[Double],
                    state: State,
                    doc: Document,
                    edus: Array[Array[(Int, Int)]],
                    corpusStats: CorpusStats): Int = {
     val indicesWithScores = for (i <- 0 to state.size - 2) yield {
       val features = getFeatures(state, i, doc, edus, corpusStats)
-      (i, dotProduct(weights, features))
+      (i, (weights dot features))
     }
     // return the index with the maximum score
     indicesWithScores.maxBy(_._2)._1
