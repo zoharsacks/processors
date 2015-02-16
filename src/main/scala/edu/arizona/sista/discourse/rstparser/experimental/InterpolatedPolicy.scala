@@ -3,9 +3,9 @@ package edu.arizona.sista.discourse.rstparser
 import scala.util.Random
 import edu.arizona.sista.processors.Document
 
-class InterpolatedPolicy extends Policy {
+class InterpolatedPolicy(val relModel: RelationClassifier) extends Policy {
   var expertProbability: Double = 1
-  val expert: ExpertPolicy = new ExpertPolicy
+  val expert: ExpertPolicy = new ExpertPolicy(relModel)
   var learned: LearnedPolicy = _
 
   def getNextState(currState: State, goldTree: DiscourseTree, doc: Document): State =

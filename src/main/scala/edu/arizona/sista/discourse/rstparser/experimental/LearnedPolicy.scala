@@ -4,7 +4,7 @@ import edu.arizona.sista.processors.Document
 import edu.arizona.sista.discourse.rstparser.Utils.mkGoldEDUs
 import breeze.linalg.SparseVector
 
-class LearnedPolicy(val weights: SparseVector[Double], val corpusStats: CorpusStats) extends Policy {
+class LearnedPolicy(val weights: SparseVector[Double], val corpusStats: CorpusStats, val relModel: RelationClassifier) extends Policy {
   val featureExtractor = new FeatureExtractor
 
   def getNextState(currState: State, goldTree: DiscourseTree, doc: Document): State = {
@@ -15,9 +15,10 @@ class LearnedPolicy(val weights: SparseVector[Double], val corpusStats: CorpusSt
     }
     val merge = scores indexOf scores.max
     val children = currState.slice(merge, merge + 2).toArray
-    val label = "DUMMY_LABEL"
-    val direction = RelationDirection.None
-    val node = new DiscourseTree(label, direction, children)
+    val d = relModel.mkDatum(children(0), children(1), doc, edus, StructureClassifier.NEG)
+    val ld = relModel.classOf(d)
+    val (label, dir) = relModel.parseLabel(ld)
+    val node = new DiscourseTree(label, dir, children)
     val nextState = currState.take(merge) ++ Seq(node) ++ currState.drop(merge + 2)
     nextState
   }

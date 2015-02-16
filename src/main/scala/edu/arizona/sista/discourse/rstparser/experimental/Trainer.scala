@@ -7,6 +7,8 @@ object Trainer extends App {
   val dependencySyntax = true
   val processor = CacheReader.getProcessor(dependencySyntax)
 
+  val rstparser = RSTParser.loadFrom(RSTParser.DEFAULT_DEPENDENCYSYNTAX_MODEL_PATH)
+
   var policy: LearnedPolicy = _
 
   train()
@@ -15,8 +17,8 @@ object Trainer extends App {
   def train(): Unit = {
     println("training ...")
     val (treedocs, corpusStats) = RSTParser.mkTrees(trainDirName, processor)
-    val structurer = new Structurer(3, 0.4)
-    policy = structurer.train(treedocs.toIndexedSeq, corpusStats, 6)
+    val structurer = new Structurer(3, 0.3, rstparser.relModel)
+    policy = structurer.train(treedocs.toIndexedSeq, corpusStats, 8)
   }
 
   def test(): Unit = {

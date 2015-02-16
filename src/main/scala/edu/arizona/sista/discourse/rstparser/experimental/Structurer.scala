@@ -9,11 +9,11 @@ import edu.arizona.sista.processors.Document
 import edu.arizona.sista.discourse.rstparser.Utils.mkGoldEDUs
 import breeze.linalg.SparseVector
 
-class Structurer(val epochs: Int, val learningRate: Double) {
+class Structurer(val epochs: Int, val learningRate: Double, val relModel: RelationClassifier) {
   require(epochs > 0, "'epochs' should be greater than 0")
   require(learningRate >= 0 && learningRate <= 1, "'learningRate' should be between 0 and 1")
 
-  val policy = new InterpolatedPolicy
+  val policy = new InterpolatedPolicy(relModel)
   val featureExtractor = new FeatureExtractor
   var avgWeights: SparseVector[Double] = _
 
@@ -22,12 +22,13 @@ class Structurer(val epochs: Int, val learningRate: Double) {
 
     def oneEpoch(indices: Seq[Int]): Future[SparseVector[Double]] = Future {
       var weights = avgWeights.copy
+      var avgW = avgWeights.copy
       for (i <- indices) {
         val (tree, doc) = treedocs(i)
         val edus = mkGoldEDUs(tree, doc)
         val path = policy.getCompletePath(tree, doc)
         for (state <- path.init) {  // last state in path is a solution
-          val nextStatesWithMergedIndex = getNextStatesWithMergedIndex(state)
+          val nextStatesWithMergedIndex = getNextStatesWithMergedIndex(state, doc, edus, relModel)
           val (nextStates, mergedIndex) = nextStatesWithMergedIndex.unzip
           val costs = getStatesCosts(nextStates, tree)
           val (bestNextState, bestNextCost) = getCheapestState(nextStates, costs)
@@ -38,15 +39,17 @@ class Structurer(val epochs: Int, val learningRate: Double) {
 
           val predNextCost = StructureScorer.loss(tree, predNextState)
 
-          if (predNextCost > 0) {
+          if (predNextCost - bestNextCost > 0) {
             val bestFeatures = getFeatures(state, bestMerge, doc, edus, corpusStats)
             val predFeatures = getFeatures(state, predMerge, doc, edus, corpusStats)
             weights += bestFeatures
             weights -= predFeatures
           }
+
+          avgW += weights
         }
       }
-      weights
+      avgW
     }
 
     for (i <- 0 until epochs) {
@@ -62,7 +65,7 @@ class Structurer(val epochs: Int, val learningRate: Double) {
       avgWeights = (avgWeights /: allWeights) {
         case (lhs, rhs) => lhs + rhs
       }
-      policy.learned = new LearnedPolicy(avgWeights, corpusStats)
+      policy.learned = new LearnedPolicy(avgWeights, corpusStats, relModel)
     }
 
     policy.learned

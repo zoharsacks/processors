@@ -1,17 +1,19 @@
 package edu.arizona.sista.discourse
 
 import scala.util.Random
+import edu.arizona.sista.processors.Document
 import edu.arizona.sista.discourse.rstparser.RelationDirection
 
 package object rstparser {
   type State = Seq[DiscourseTree]
 
-  def getNextStatesWithMergedIndex(state: State): Seq[(State, Int)] =
+  def getNextStatesWithMergedIndex(state: State, doc: Document, edus: Array[Array[(Int, Int)]], relationModel: RelationClassifier): Seq[(State, Int)] =
     for (i <- 0 to state.size - 2) yield {
       val children = state.slice(i, i + 2).toArray
-      val label = "DUMMY_LABEL"
-      val direction = RelationDirection.None
-      val node = new DiscourseTree(label, direction, children)
+      val d = relationModel.mkDatum(children(0), children(1), doc, edus, StructureClassifier.NEG)
+      val ld = relationModel.classOf(d)
+      val (label, dir) = relationModel.parseLabel(ld)
+      val node = new DiscourseTree(label, dir, children)
       val nextState = state.take(i) ++ Seq(node) ++ state.drop(i + 2)
       (nextState, i)
     }
