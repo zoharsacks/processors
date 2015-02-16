@@ -94,7 +94,10 @@ class Structurer(val epochs: Int, val learningRate: Double, val relModel: Relati
                   corpusStats: CorpusStats): SparseVector[Double] = {
     val left = state(merge)
     val right = state(merge + 1)
-    featureExtractor.getFeatures(left, right, doc, edus, corpusStats, "DUMMY_LABEL")
+    val d = relModel.mkDatum(left, right, doc, edus, StructureClassifier.NEG)
+    val ld = relModel.classOf(d)
+    val (label, dir) = relModel.parseLabel(ld)
+    featureExtractor.getFeatures(left, right, doc, edus, corpusStats, label)
   }
 
   def predictMerge(weights: SparseVector[Double],
