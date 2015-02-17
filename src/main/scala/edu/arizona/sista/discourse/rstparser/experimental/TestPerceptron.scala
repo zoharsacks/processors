@@ -36,8 +36,8 @@ class DistributedPerceptron(val epochs: Int, val numShards: Int) {
       val shards = splitShards(shuffle(indices), numShards)
       val futureWeights = Future.sequence(shards map oneEpoch)
       val shardWeights = Await.result(futureWeights, Duration.Inf)
-      avgWeights = (avgWeights /: shardWeights) {
-        case (lhs, rhs) => lhs + rhs
+      for (w <- shardWeights) {
+        avgWeights += w
       }
     }
 

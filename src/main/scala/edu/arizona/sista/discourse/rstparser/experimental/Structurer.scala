@@ -62,9 +62,10 @@ class Structurer(val epochs: Int, val learningRate: Double, val relModel: Relati
       val futureWeights = Future.sequence(shards map oneEpoch)
       val allWeights = Await.result(futureWeights, Duration.Inf)
 
-      avgWeights = (avgWeights /: allWeights) {
-        case (lhs, rhs) => lhs + rhs
+      for (w <- allWeights) {
+        avgWeights += w
       }
+
       policy.learned = new LearnedPolicy(avgWeights, corpusStats, relModel)
     }
 
