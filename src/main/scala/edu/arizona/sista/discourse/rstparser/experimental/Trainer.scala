@@ -11,18 +11,18 @@ object Trainer extends App {
 
   var policy: LearnedPolicy = _
 
+  println("training ...")
   train()
+  println("testing ...")
   test()
 
   def train(): Unit = {
-    println("training ...")
     val (treedocs, corpusStats) = RSTParser.mkTrees(trainDirName, processor)
-    val structurer = new Structurer(3, 0.3, rstparser.relModel)
+    val structurer = new Structurer(3, 0.4, rstparser.relModel)
     policy = structurer.train(treedocs.toIndexedSeq, corpusStats, 8)
   }
 
   def test(): Unit = {
-    println("testing ...")
     val scorer = new DiscourseScorer
     val structScoreGold = new DiscourseScore()
     val (treedocs, corpusStats) = RSTParser.mkTrees(testDirName, processor)
