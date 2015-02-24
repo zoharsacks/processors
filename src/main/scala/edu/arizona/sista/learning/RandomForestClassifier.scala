@@ -88,6 +88,7 @@ class RandomForestClassifier[L, F]( val numTrees:Int = 1000,
     rfc.setMaxDepth(maxTreeDepth)
     rfc.setSeed(randomSeed)
     rfc.setNumThreads(numThreads)
+    rfc.setComputeImportances(true)
 
     // train
     logger.debug("Training with the following parameters:")
