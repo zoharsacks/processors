@@ -101,6 +101,8 @@ class RandomForestClassifier[L, F]( val numTrees:Int = 1000,
 
     // instances are no longer needed after training
     instances.get.delete()
+
+    println(rfc.toString)
   }
 
   private def asString[T](v:T):String = {
