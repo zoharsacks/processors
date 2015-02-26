@@ -1,4 +1,4 @@
-package edu.arizona.sista.discourse.rstparser
+package edu.arizona.sista.discourse.rstparser.experimental
 
 import scala.math.{pow, sqrt}
 import scala.util.Random.shuffle
@@ -6,6 +6,7 @@ import scala.concurrent.{Await, Future}
 import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
 import edu.arizona.sista.processors.Document
+import edu.arizona.sista.discourse.rstparser._
 import edu.arizona.sista.discourse.rstparser.Utils.mkGoldEDUs
 import breeze.linalg.SparseVector
 

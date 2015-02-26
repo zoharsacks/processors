@@ -1,5 +1,6 @@
-package edu.arizona.sista.discourse.rstparser
+package edu.arizona.sista.discourse.rstparser.experimental
 
+import edu.arizona.sista.discourse.rstparser._
 import edu.arizona.sista.struct.Interval
 
 object StructureScorer {

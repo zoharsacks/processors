@@ -1,4 +1,4 @@
-package edu.arizona.sista.discourse.rstparser
+package edu.arizona.sista.discourse.rstparser.experimental
 
 import scala.util.Random.shuffle
 import scala.concurrent.{Await, Future}

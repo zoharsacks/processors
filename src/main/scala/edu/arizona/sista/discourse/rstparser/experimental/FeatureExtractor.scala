@@ -1,5 +1,6 @@
-package edu.arizona.sista.discourse.rstparser
+package edu.arizona.sista.discourse.rstparser.experimental
 
+import edu.arizona.sista.discourse.rstparser._
 import edu.arizona.sista.struct.{Counter, Lexicon}
 import edu.arizona.sista.processors.Document
 import breeze.linalg.SparseVector

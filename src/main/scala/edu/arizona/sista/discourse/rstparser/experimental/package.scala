@@ -1,10 +1,9 @@
-package edu.arizona.sista.discourse
+package edu.arizona.sista.discourse.rstparser
 
 import scala.util.Random
 import edu.arizona.sista.processors.Document
-import edu.arizona.sista.discourse.rstparser.RelationDirection
 
-package object rstparser {
+package object experimental {
   type State = Seq[DiscourseTree]
 
   def getNextStatesWithMergedIndex(state: State, doc: Document, edus: Array[Array[(Int, Int)]], relationModel: RelationClassifier): Seq[(State, Int)] =

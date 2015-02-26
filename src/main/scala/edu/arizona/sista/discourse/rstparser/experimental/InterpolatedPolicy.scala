@@ -1,6 +1,7 @@
-package edu.arizona.sista.discourse.rstparser
+package edu.arizona.sista.discourse.rstparser.experimental
 
 import scala.util.Random
+import edu.arizona.sista.discourse.rstparser._
 import edu.arizona.sista.processors.Document
 
 class InterpolatedPolicy(val relModel: RelationClassifier) extends Policy {

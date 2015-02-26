@@ -1,5 +1,6 @@
-package edu.arizona.sista.discourse.rstparser
+package edu.arizona.sista.discourse.rstparser.experimental
 
+import edu.arizona.sista.discourse.rstparser._
 
 object Trainer extends App {
   val trainDirName = "/work/marcov/data/RST_cached_preprocessing/rst_train"
