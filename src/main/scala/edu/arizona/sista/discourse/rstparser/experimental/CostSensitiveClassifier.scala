@@ -2,7 +2,7 @@ package edu.arizona.sista.discourse.rstparser.experimental
 
 import scala.math.sqrt
 import edu.arizona.sista.learning._
-import edu.arizona.sista.struct.{Counter, Lexicon}
+import edu.arizona.sista.struct.{ Counter, Lexicon }
 import breeze.linalg._
 
 class CostSensitiveClassifier[L, F](val epochs: Int, val aggressiveness: Double) {
@@ -17,14 +17,19 @@ class CostSensitiveClassifier[L, F](val epochs: Int, val aggressiveness: Double)
   var featureLexicon: Lexicon[F] = _
   var avgWeights: DenseMatrix[Double] = _
 
+  // uninitialized variables
+  var numLabels: Int = _
+  var numFeatures: Int = _
+  var numSamples: Int = _
+
   // train with default costs
   def train(dataset: Dataset[L, F]): Unit =
     train(dataset, mkCostMatrix(dataset))
 
   def train(dataset: Dataset[L, F], costMatrix: DenseMatrix[Double]): Unit = {
-    val numLabels = dataset.numLabels
-    val numFeatures = dataset.numFeatures
-    val numSamples = dataset.size
+    numLabels = dataset.numLabels
+    numFeatures = dataset.numFeatures
+    numSamples = dataset.size
 
     val indices = DenseVector.range(0, numSamples)
     val weights = DenseMatrix.zeros[Double](numLabels, numFeatures)
@@ -52,6 +57,19 @@ class CostSensitiveClassifier[L, F](val epochs: Int, val aggressiveness: Double)
       avgWeights += weights
     }
   }
+
+  def predictLabel(datum: Datum[L, F]): L = {
+    val indexData = for {
+      (f, v) <- datum.featuresCounter.toSeq
+      i <- featureLexicon.get(f)
+    } yield (i, v)
+    val (index, data) = indexData.sortBy(_._1).unzip
+    val feats = new SparseVector(index.toArray, data.toArray, numFeatures)
+    predictLabel(feats)
+  }
+
+  def predictLabel(feats: SparseVector[Double]): L =
+    labelLexicon.get(argmax(avgWeights * feats))
 }
 
 object CostSensitiveClassifier {
